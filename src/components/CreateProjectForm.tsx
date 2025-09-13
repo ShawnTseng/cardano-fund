@@ -16,6 +16,16 @@ export default function CreateProjectForm({ onCreated }: Props) {
         if (!recipientAddress.trim()) return "請輸入收款地址（testnet）";
         if (!deadline) return "請選擇截止日期";
         if (!targetAda || targetAda <= 0) return "目標金額需 > 0";
+
+        // ✅ 地址格式（Preprod 常見：addr_test1...）
+        const isBech32 = /^addr(_test)?1[0-9a-z]+$/i.test(recipientAddress.trim());
+        if (!isBech32) return "收款地址格式不正確（應為 Cardano bech32 地址，如 addr_test1...）";
+
+        // ✅ 日期不可早於今天（以本地時區為準，只比 yyyy-mm-dd）
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const ddl = new Date(deadline); ddl.setHours(0, 0, 0, 0);
+        if (ddl < today) return "截止日期不可早於今天";
+
         return null;
     }
 
